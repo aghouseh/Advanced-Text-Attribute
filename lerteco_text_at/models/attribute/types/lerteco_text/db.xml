@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<schema version="0.3">
+<table name="atLertecoText">
+	<field name="akID" type="I" size="10">
+		<KEY/>
+		<UNSIGNED/>
+	</field>
+
+	<field name="valType" type="I" size="3" />
+	<field name="valRegExp" type="C" size="300" />
+	<field name="valReq" type="L" />
+	<field name="valMinLen" type="I" size="3" />
+	<field name="valMaxLen" type="I" size="3" />
+	<field name="formatType" type="L" />
+</table>
+</schema>
