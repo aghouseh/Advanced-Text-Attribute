@@ -2,6 +2,9 @@
 
 Loader::model('attribute/types/default/controller');
 
+/**
+ * Sets up the attribute type for advanced text
+ */
 class LertecoTextAttributeTypeController extends DefaultAttributeTypeController  {
 	const TYPE_REGEXP = -1;
 	const TYPE_FREE = 0;
@@ -22,11 +25,18 @@ class LertecoTextAttributeTypeController extends DefaultAttributeTypeController 
 
 
 	// *********** type setup (type form)
+	/**
+	 * Run before the type form (ie, the piece of the page shown when setting up or configuring an instance of an attribute type)
+	 */
 	public function type_form() {
 		$this->set('textConfig', $this->getConfig());
 		$this->set('typeOptions', $this->typeOptions);
 	}
-	
+
+	/**
+	 * Run after type form is submitted
+	 * @param array $data Relevant form elements passed by controller on submit
+	 */
 	public function saveKey($data) {
 		$db = Loader::db();
 
@@ -45,6 +55,10 @@ class LertecoTextAttributeTypeController extends DefaultAttributeTypeController 
 	}
 
 	// *********** attribute key editing (form)
+	/**
+	 * Run before the form (ie, the editing of a specific attribute instance).
+	 * Here we load the various config options that the form needs, plus any javascript
+	 */
 	public function form() {
 		$hh = Loader::helper('html'); /* @var $hh HtmlHelper */
 		
@@ -63,16 +77,14 @@ class LertecoTextAttributeTypeController extends DefaultAttributeTypeController 
 		$this->set('fieldName', $this->field('value'));
 		$this->set('value', $value);
 		$this->set('mustVal', $mustValidate);
-/*
-		if (is_object($this->attributeValue)) {
-			$value = Loader::helper('text')->entities($this->getAttributeValue()->getValue());
-		}
-		print Loader::helper('form')->text($this->field('value'), $value);
- * 
- */
 	}
 
 	// *********** Display
+	/**
+	 * Returns the attribute value
+	 * @param boolean $supressFormat When set to true, prevents the formatting of an attribute regardless of the formatType config setting
+	 * @return string Could be in HTML if the user provided HTML or we're formatting the value
+	 */
 	public function  getValue($supressFormat = false) {
 		$textConfig = $this->getConfig();
 		$value = parent::getValue();
@@ -84,11 +96,21 @@ class LertecoTextAttributeTypeController extends DefaultAttributeTypeController 
 		}
 	}
 
-	//should do a better job of sanitizing.
+	/**
+	 * Sometimes called by, e.g., the value display on the user profile page.
+	 * TODO: This should return a sanitized value, but that screws up the formatting HTML code. On the other hand, even if they request "sanitized", we should still provide formatted, just formatted /and/ sanitized
+	 * @return string Result of getValue(). Could be HTML.
+	 */
 	public function  getDisplaySanitizedValue() {
 		return $this->getValue();
 	}
 
+	/**
+	 * Formats the attribute value in a defined way (url, email, etc)
+	 * @param string $val Text to format
+	 * @param int $formatType A constant of type SELF::TYPE_ referring to the type of formatting to do
+	 * @return <type>
+	 */
 	private function format($val, $formatType) {
 		switch ($formatType) {
 			case self::TYPE_EMAIL:
@@ -106,6 +128,10 @@ class LertecoTextAttributeTypeController extends DefaultAttributeTypeController 
 		}
 	}
 
+	/**
+	 * Gets the attribute type configuration
+	 * @return array Represents DB row of config
+	 */
 	private function getConfig() {
 		$db = Loader::db();
 		if ($ak = $this->getAttributeKey()) {
@@ -114,117 +140,3 @@ class LertecoTextAttributeTypeController extends DefaultAttributeTypeController 
 	}
 
 }
-
-/*
-class LertecoTextAttributeTypeController extends AttributeTypeController  {
-
-	protected $searchIndexFieldDefinition = 'X NULL';
-	
-	public function getValue() {
-		$db = Loader::db();
-		$value = $db->GetOne("select value from atMultipleFiles where avID = ?", array($this->getAttributeValueID()));
-		return $value;	 
-	}
-	
-	
-	public function getDisplayValue() {
-		return $this->getValue();
-	}
-
-
-	public function searchForm($list) {
-		$db = Loader::db();
-		$list->filterByAttribute($this->attributeKey->getAttributeKeyHandle(), '%' . $this->request('value') . '%', 'like');
-		return $list;
-	}	
-	
-	public function search() { 
-		$f = Loader::helper('form');
-		print $f->text($this->field('value'), $value);
-	}	 
-	
-	public function form(){   
-		$al = Loader::helper('concrete/asset_library');    
-	}	
-
-	// run when we call setAttribute(), instead of saving through the UI
-	public function saveValue( $fIDs=array() ) {
-		$db = Loader::db();
-		if(!is_array($fIDs)) $fIDs=array();
-		$cleanFIDs=array();
-		foreach($fIDs as $fID) $cleanFIDs[]=intval($fID);
-		$cleanFIDs = array_unique($cleanFIDs);
-		$db->Replace('atMultipleFiles', array('avID' => $this->getAttributeValueID(), 'value' => join(',',$cleanFIDs)), 'avID', true);
-	}
-	
-	public function deleteKey() {
-		$db = Loader::db();
-		$arr = $this->attributeKey->getAttributeValueIDList();
-		foreach($arr as $id) {
-			$db->Execute('delete from atMultipleFiles where avID = ?', array($id));
-		}
-	}
-	
-	public function saveForm($data) { 
-		$db = Loader::db();
-		$this->saveValue($data['fID']);
-	}
-	
-	public function deleteValue() {
-		$db = Loader::db();
-		$db->Execute('delete from atMultipleFiles where avID = ?', array($this->getAttributeValueID()));
-	}
-	
-	
-	static public function getFiles($valueStr=''){  
-		$files=array();
-		foreach(explode(',',$valueStr) as $fID){
-			if(!intval($fID)) continue;
-			$file = File::getByID(intval($fID));
-			if(!is_object($file) || !$file->getFileID()) continue;   
-			$files[]=$file; 
-		}  	
-		return $files; 
-	}
-	
-}
-*/
-
-/*
-class MultipleFilesAttributeTypeValue extends Object { 
-
-	public static function getByID($avID) {
-		$db = Loader::db();
-		$value = $db->GetRow("select * from atMultipleFiles where avID = ?", array($avID));
-		$mfatv = new MultipleFilesAttributeTypeValue();
-		$mfatv->setPropertiesFromArray($value);
-		if ($value['avID']) {
-			return $mfatv;
-		}
-	} 
-	
-	public function __construct() {
-		
-	}	 
-	
-	public function getFiles(){  
-		$files=array();
-		foreach(explode(',',$this->value) as $fID){
-			if(!intval($fID)) continue;
-			$file = File::getByID(intval($fID));
-			if(!is_object($file) || !$file->getFileID()) continue;   
-			$files[]=$file; 
-		}  	
-		return $files; 
-	}
-	
-	public function __toString() {
-		$fileNames=array();
-		foreach($this->getFiles() as $f){
-			$fv = $f->getApprovedVersion();
-			$fileNames[]=$fv->getTitle();
-		} 
-		return join(', ',$fileNames);	
-	}
-}
-*/ 

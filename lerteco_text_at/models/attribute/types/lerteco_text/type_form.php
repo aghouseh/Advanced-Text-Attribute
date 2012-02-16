@@ -24,10 +24,10 @@ $fh = Loader::helper('form'); /* @var $fh FormHelper */
 			<?php echo $fh->checkbox('valReq', '1', $textConfig['valReq']); ?>
 		</div>
 	</div>
-
 </fieldset>
 <fieldset id="set-display">
 	<legend>Display</legend>
+	
 	<div id="control-regexp" class="clearfix control-group">
 		<label class="control-label">Format As Type</label>
 		<div class="input controls">

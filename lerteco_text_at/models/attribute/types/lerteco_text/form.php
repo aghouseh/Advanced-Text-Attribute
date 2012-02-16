@@ -1,6 +1,5 @@
 <?php
 $fh = Loader::helper('form'); /* @var $fh FormHelper */
-/* @var $controller LertecoTextAttributeTypeController */
 ?>
 <?php echo $fh->text($fieldName, $value, array('class' => 'span3')) ?>
 
@@ -9,7 +8,9 @@ $fh = Loader::helper('form'); /* @var $fh FormHelper */
 ?>
 	<script type="text/javascript">
 		$(function() {
+			// attach jquery validation to the form
 			$('#<?php echo $field ?>').closest('form').validate();
+			// bind the form-pre-serialize watcher to the form. this intercepts calls by .ajaxSubmit (used on the dashbaord pages)
 			$('#<?php echo $field ?>').closest('form').bind('form-pre-serialize', function(event, form, opts, veto) {
 				if (! form.valid()) {
 					$($(this).closest('tr').find('a')[0]).trigger('click');
@@ -17,6 +18,7 @@ $fh = Loader::helper('form'); /* @var $fh FormHelper */
 				}
 			});
 
+			// add rules one at a time... can't add them as part of validate (commas get messy. also, might be more than one attribute per a page.)
 			<?php if ($textConfig['valReq']) { ?>
 				$('#<?php echo $field ?>').rules('add', { required: true });
 			<?php } ?>

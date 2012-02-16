@@ -3,7 +3,6 @@
 /**
  * Package that installs the advanced text attribute
  */
-
 class LertecoTextAtPackage extends Package {
 
 	protected $pkgHandle = 'lerteco_text_at';
