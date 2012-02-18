@@ -5,14 +5,13 @@ $fh = Loader::helper('form'); /* @var $fh FormHelper */
 
 <fieldset>
 	<legend>Validation</legend>
-
 	<div class="clearfix control-group">
 		<label class="control-label">Input Type</label>
 		<div class="input controls">
 			<?php echo $fh->select('valType', $typeOptions, $textConfig['valType']); ?>
 		</div>
 	</div>
-	<div id="control-regexp" class="clearfix control-group">
+	<div id="control-regexp" class="clearfix control-group"<?php if (!$textConfig['valRegExp']) {?> style="display:none;"<?php } ?>>
 		<label class="control-label">Regular Expression</label>
 		<div class="input controls">
 			<?php echo $fh->text('valRegExp', $textConfig['valRegExp']); ?>
@@ -35,3 +34,10 @@ $fh = Loader::helper('form'); /* @var $fh FormHelper */
 		</div>
 	</div>
 </fieldset>
+<script>
+$(function(){
+	$('#valType').change(function(){
+		$('#control-regexp').toggle(Boolean($('#valType').find('option:selected').text().match(/regular/gi)));
+	});
+});
+</script>
